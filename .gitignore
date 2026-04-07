@@ -1,0 +1,31 @@
+# Environment variables (Sensitive)
+.env
+.env.backup
+
+# Generated binaries & build artifacts
+hfchance
+hfchance.exe
+analyzer
+audit
+basic-asset
+
+# Temporary Arena Sandboxes & Docker Configs
+docker-compose-*-sandbox.yaml
+docker-compose-test-run-*.yaml
+chaincodes/*_secured.go
+
+# Hyperledger Fabric infrastructure
+# Note: Usually you don't commit the entire fabric-samples if it is an external dependency
+fabric-samples/
+
+# Go specific
+vendor/
+*.wasm
+tmp/
+
+# OS/IDE specific
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.bak
