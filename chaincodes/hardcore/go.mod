@@ -1,11 +1,8 @@
-module github.com/antonioforte/chaincode-carnival
+module hardcore
 
-go 1.23.2
+go 1.20
 
-require (
-	github.com/hyperledger/fabric-contract-api-go v1.2.2
-	github.com/joho/godotenv v1.5.1
-)
+require github.com/hyperledger/fabric-contract-api-go v1.2.2
 
 require (
 	github.com/go-openapi/jsonpointer v0.20.0 // indirect
@@ -16,9 +13,9 @@ require (
 	github.com/gobuffalo/packd v1.0.2 // indirect
 	github.com/gobuffalo/packr v1.30.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hyperledger/fabric-chaincode-go v0.0.0-20230731094759-d626e9ab09b9 // indirect
 	github.com/hyperledger/fabric-protos-go v0.3.0 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect

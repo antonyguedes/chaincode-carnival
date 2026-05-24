@@ -3,7 +3,9 @@ package skeptic
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/antonioforte/chaincode-carnival/agents/providers"
 	"github.com/antonioforte/chaincode-carnival/types"
@@ -41,7 +43,7 @@ JSON:`, finalPatch)
 		fmt.Printf("[%s] Skeptic failed to generate recognizable JSON validation.\n", provider.Name())
 		return types.SkepticVerdict{TotalScore: 0, Approved: false}
 	}
-	match := respRaw[start : end+1]
+	match := sanitizeSkepticJSON(respRaw[start : end+1])
 
 	var verdict types.SkepticVerdict
 	if err := json.Unmarshal([]byte(match), &verdict); err != nil {
@@ -61,4 +63,58 @@ JSON:`, finalPatch)
 	}
 
 	return verdict
+}
+
+func sanitizeSkepticJSON(s string) string {
+	if !utf8.ValidString(s) {
+		var b strings.Builder
+		for _, r := range s {
+			if r != utf8.RuneError {
+				b.WriteRune(r)
+			}
+		}
+		s = b.String()
+	}
+	s = fixSkepticEscapes(s)
+	trailing := regexp.MustCompile(`,\s*([\]}])`)
+	return trailing.ReplaceAllString(s, "$1")
+}
+
+func fixSkepticEscapes(s string) string {
+	var b strings.Builder
+	b.Grow(len(s))
+	inStr := false
+	i := 0
+	for i < len(s) {
+		c := s[i]
+		if c == '"' && (i == 0 || s[i-1] != '\\') {
+			inStr = !inStr
+			b.WriteByte(c)
+			i++
+			continue
+		}
+		if inStr && c == '\\' && i+1 < len(s) {
+			next := s[i+1]
+			switch next {
+			case '"', '\\', '/', 'b', 'f', 'n', 'r', 't':
+				b.WriteByte(c); b.WriteByte(next); i += 2
+			case 'u':
+				if i+5 < len(s) && isSkepticHex(s[i+2]) && isSkepticHex(s[i+3]) && isSkepticHex(s[i+4]) && isSkepticHex(s[i+5]) {
+					b.WriteString(s[i : i+6]); i += 6
+				} else {
+					b.WriteByte(next); i += 2
+				}
+			default:
+				b.WriteByte(next); i += 2
+			}
+			continue
+		}
+		b.WriteByte(c)
+		i++
+	}
+	return b.String()
+}
+
+func isSkepticHex(c byte) bool {
+	return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
 }

@@ -31,6 +31,9 @@ func (c *OpenAICompatibleClient) Query(prompt string) (string, error) {
 		"messages": []map[string]interface{}{
 			{"role": "user", "content": prompt},
 		},
+		// Ensure enough tokens for structured JSON responses.
+		// Small models (llama-3.1-8b) default to very low limits and truncate mid-JSON.
+		"max_tokens": 2048,
 	}
 	jsonData, _ := json.Marshal(reqBody)
 	req, err := http.NewRequest("POST", c.baseURL, bytes.NewBuffer(jsonData))
